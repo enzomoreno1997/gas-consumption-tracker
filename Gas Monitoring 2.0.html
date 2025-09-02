@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Gas Consumption Tracker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 10px;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    button {
+      margin-top: 15px;
+      width: 100%;
+      padding: 10px;
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #218838;
+    }
+    .result {
+      margin-top: 15px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #007bff;
+      text-align: center;
+    }
+    .history {
+      margin-top: 20px;
+    }
+    .history h3 {
+      margin-bottom: 5px;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      background: #eee;
+      margin-bottom: 8px;
+      padding: 8px;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Gas Consumption Tracker</h2>
+
+    <label for="date">Date:</label>
+    <input type="date" id="date">
+
+    <label for="mileage">Current Mileage (km):</label>
+    <input type="number" id="mileage" placeholder="Enter odometer reading">
+
+    <label for="gas">Gas Used (liters):</label>
+    <input type="number" id="gas" placeholder="Enter liters">
+
+    <label for="price">Price per Liter (PHP):</label>
+    <input type="number" id="price" placeholder="Enter price per liter">
+
+    <button onclick="calculate()">Add Entry</button>
+
+    <div class="result" id="result"></div>
+
+    <div class="history">
+      <h3>History</h3>
+      <ul id="historyList"></ul>
+    </div>
+  </div>
+
+  <script>
+    let previousMileage = 0;
+    let totalDistance = 0;
+    let totalGas = 0;
+
+    function calculate() {
+      let date = document.getElementById("date").value;
+      let mileage = parseFloat(document.getElementById("mileage").value);
+      let gas = parseFloat(document.getElementById("gas").value);
+      let price = parseFloat(document.getElementById("price").value);
+      let resultDiv = document.getElementById("result");
+      let historyList = document.getElementById("historyList");
+
+      if (!date || isNaN(mileage) || isNaN(gas) || isNaN(price) || mileage <= 0 || gas <= 0 || price <= 0) {
+        resultDiv.innerHTML = "⚠️ Please fill all fields with valid numbers.";
+        return;
+      }
+
+      // Calculate distance since last entry
+      let distance = mileage - previousMileage;
+      previousMileage = mileage;
+
+      if(distance <= 0) {
+        resultDiv.innerHTML = "⚠️ Mileage should be higher than previous entry.";
+        return;
+      }
+
+      let consumption = (distance / gas).toFixed(2);
+      let totalCost = (gas * price).toFixed(2);
+
+      // Update totals for average
+      totalDistance += distance;
+      totalGas += gas;
+      let averageConsumption = (totalDistance / totalGas).toFixed(2);
+
+      resultDiv.innerHTML = `Fuel Consumption: <b>${consumption} km/L</b> | Total Cost: <b>₱${totalCost}</b> | Average Consumption: <b>${averageConsumption} km/L</b>`;
+
+      // Add to history
+      let li = document.createElement("li");
+      li.textContent = `${date} | Mileage: ${mileage} km | Distance: ${distance} km | Gas: ${gas} L | ₱${price}/L | Cost: ₱${totalCost} | Consumption: ${consumption} km/L`;
+      historyList.prepend(li);
+
+      // Clear inputs except mileage for next entry
+      document.getElementById("date").value = "";
+      document.getElementById("gas").value = "";
+      document.getElementById("price").value = "";
+    }
+  </script>
+</body>
+</html>
